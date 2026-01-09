@@ -1,0 +1,36 @@
+{
+  "name": "drone_edu_app",
+  "version": "1.0.0",
+  "description": "드론 블록코딩 앱",
+  "main": "main.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "electron .",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dist": "electron-builder"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^39.2.7",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "com.example.drone_edu_app",
+    "productName": "드론 블록코딩",
+    "win": {
+      "target": "nsis"
+    },
+    "files": [
+      "main.js",
+      "index.html",
+      "preload.js",
+      "rederer.js",
+      "node_modules/blockly/**/*"
+    ]
+  },
+  "dependencies": {
+    "blockly": "^12.3.1"
+  }
+}

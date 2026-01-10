@@ -47,13 +47,12 @@
 ## 시작하기
 
 ```bash
-# 레포지토리 클론
-git clone [https://github.com/사용자이름/drone-platform.git](https://github.com/사용자이름/drone-platform.git)
 
 # 의존성 설치
 npm install
 
 # 실행
 npm start
+
 
 

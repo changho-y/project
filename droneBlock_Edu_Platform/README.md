@@ -1,4 +1,4 @@
-# 🛸 드론 통합 플랫폼 (Drone Integrated Platform)
+# 드론 통합 플랫폼 (Drone Integrated Platform)
 
 > **복잡한 드론 명령어를 시각적 블록으로 재구성한 지능형 드론 미션 설계 플랫폼**
 
@@ -10,7 +10,7 @@
 * **목표**: 복잡한 드론 명령어를 아이들의 눈높이에 맞춘 블록 코딩으로 변환
 * **추가 예정**: 블록을 Python이나 JavaScript 코드로 변환하는 기능, 실제 드론과 통신하는 모듈 추가
 
-## 🛠 Tech Stack
+## Tech Stack
 | 구분 | 기술 스택 | 설명 |
 | :--- | :--- | :--- |
 | **Framework** | Electron | 크로스 플랫폼 데스크탑 앱 프레임워크(v39.2.7) |
@@ -19,26 +19,32 @@
 | **Runtime** | Node.js | 백엔드 로직 및 모듈 관리 |
 | **Build Tool** | electron-builder | Windows 실행 파일(.exe) 빌드 및 배포 도구 |
 
-## ✨ 핵심 기능 (Key Features)
+## 핵심 기능 (Key Features)
 
-### 1. 실시간 기체 관제 (Real-time Monitoring)
-* **Telemetry 데이터**: 고도, 속도, 배터리 잔량 등을 실시간 대시보드로 확인
-* **지도 연동**: 현재 드론의 위치를 지도 위에 마커로 표시 및 이동 경로(Breadcrumbs) 출력
+### 1. 직관적인 블록 코딩 인터페이스 (Block-Based Programming)
+* Zelos 렌더러 적용: 현대적이고 가시성이 높은 Google Blockly의 Zelos 렌더러를 사용하여 직관적인 코딩 환경을 구축했습니다.
+* 한국어 로컬라이징: blockly/msg/ko를 로드하여 모든 블록과 메시지를 한국어로 제공, 입문자의 접근성을 높였습니다.
+* 워크스페이스 최적화: 그리드 스냅(Snap), 부드러운 확대/축소(Zoom), 삭제 기능(Trashcan)을 포함하여 데스크탑 앱에 최적화된 사용자 경험을 제공합니다.
 
-### 2. 드론 미션 제어 (Mission Control)
-* Waypoint 설정 및 전송 기능
-* 이륙(Take-off), 착륙(Land), 복귀(RTL) 원격 명령 제어
+### 2. 드론 특화 커스텀 블록 라이브러리 (Drone-Specific Blocks)
+* 기본 비행 제어: 이륙(drone_takeoff), 착륙(drone_land) 등 드론의 필수 동작을 전용 블록으로 구현했습니다.
+* 정밀 이동 제어: 상승/하강, 전진/후진, 좌회전/우회전 시 수치값(cm, 도)을 직접 입력하여 세밀한 비행 경로를 설정할 수 있습니다.
+* 그림자 블록(Shadow Blocks) 활용: 거리나 각도 입력창에 기본값(100cm, 90도)이 미리 채워진 그림자 블록을 적용하여 빠른 코딩이 가능합니다.
 
-### 3. 데이터 분석 및 로그 관리
-* 비행 로그 자동 저장 및 그래프 시각화
-* 과거 비행 기록 다시보기(Playback) 기능
+### 3. 고수준 통합 이동 로직 (Unified Movement System)
+* 드롭다운 기반 방향 설정: 하나의 블록(drone_move_unified)에서 앞, 뒤, 좌, 우, 위, 아래 6가지 방향을 자유롭게 선택할 수 있습니다.
+* 속도 및 거리 동시 제어: 이동 거리(m)와 이동 속도(m/s)를 한 번에 설정할 수 있는 통합 로직을 통해 복잡한 비행 미션을 단순화했습니다.
 
-## 📸 실행 화면 (Screenshots)
+### 4. 안전한 데스크탑 실행 환경 (Secure Desktop Environment)
+* Electron 기반 설계: 웹 기술과 시스템 리소스 접근을 결합하여 강력한 드론 관제 성능을 확보했습니다.
+* 프로세스 분리: main.js와 renderer.js를 분리하고 preload.js를 거치는 보안 설계를 통해 안정적인 데이터 처리가 가능합니다.
+
+## 실행 화면 (Screenshots)
 | 메인 대시보드 | 실시간 경로 트래킹 |
 | :---: | :---: |
 | <img src="이미지주소1" width="400"> | <img src="이미지주소2" width="400"> |
 
-## 🚀 시작하기 (Installation)
+## 시작하기 (Installation)
 
 ```bash
 # 레포지토리 클론
@@ -49,3 +55,4 @@ npm install
 
 # 실행
 npm start
+

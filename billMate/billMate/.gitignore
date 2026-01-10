@@ -1,0 +1,43 @@
+# dependencies
+node_modules/
+server/node_modules/
+
+# Expo & Build
+.expo/
+.expo-shared/
+dist/
+web-build/
+expo-env.d.ts
+*.tsbuildinfo
+
+# Native (bare workflow)
+ios/
+android/
+.kotlin/
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.pem
+
+# Metro& debug
+.metro-health-check*
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+*.log
+
+# OS & IDE
+.DS_Store
+.idea/
+.vscode/
+Thumbs.db
+
+# Secrets
+.env
+.env*.local
+server/.env*
+server.backup.js
+serviceAccountKey.json

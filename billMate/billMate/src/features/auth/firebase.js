@@ -10,7 +10,7 @@ import { getFirestore } from "firebase/firestore"; // ✅ Firestore 추가
 
 // ✅ Firebase 콘솔에서 받은 설정값
 const firebaseConfig = {
-  apiKey: "AIzaSyC6uBFCosttq3sSlDzE1aBvyiakR29pSjc",
+  apiKey: "",
   authDomain: "capstone-design2-app.firebaseapp.com",
   projectId: "capstone-design2-app",
   storageBucket: "capstone-design2-app.firebasestorage.app",

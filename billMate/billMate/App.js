@@ -21,8 +21,6 @@ import EvidenceScreen from "./src/screens/EvidenceScreen";
 
 // 커뮤니티
 import PostListScreen from "./src/screens/PostListScreen";
-import PostDetailScreen from "./src/screens/PostDetailScreen";
-import PostEditorScreen from "./src/screens/PostEditorScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -118,16 +116,6 @@ export default function App() {
               name="PostList"
               component={PostListScreen}
               options={{ headerShown: false }}   // 🔥 여기 수정!
-            />
-            <Stack.Screen
-              name="PostDetail"
-              component={PostDetailScreen}
-              options={{ title: "게시글" }}
-            />
-            <Stack.Screen
-              name="PostEditor"
-              component={PostEditorScreen}
-              options={{ title: "글쓰기" }}
             />
 
             {/* 증거 보관함 */}

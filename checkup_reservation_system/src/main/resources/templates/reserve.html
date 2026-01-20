@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>사내 검진 예약</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; max-width: 760px; margin: 24px auto; padding: 0 16px; }
+    .card { border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+    .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+    label { font-size: 14px; color: #374151; }
+    input { padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 10px; }
+    button { padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 10px; background: #fff; cursor: pointer; }
+    button.primary { background: #111827; color: #fff; border-color: #111827; }
+    button.slot { min-width: 120px; }
+    button.slot[disabled] { opacity: .45; cursor: not-allowed; }
+    .slots { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+    .muted { color: #6b7280; font-size: 13px; }
+    .ok { color: #059669; }
+    .err { color: #dc2626; }
+	.card-item { border: 1px solid #e5e7eb; border-radius: 12px; padding: 12px; margin-top: 10px; }
+	.badge { display:inline-block; padding: 4px 8px; border-radius: 999px; font-size: 12px; border: 1px solid #d1d5db; }
+	.badge.ok { border-color:#10b981; color:#059669; }
+	.badge.muted { border-color:#9ca3af; color:#6b7280; }
+	.actions { margin-top: 10px; display:flex; gap:10px; align-items:center; }
+	button.danger { background:#fff; border-color:#dc2626; color:#dc2626; }
+  </style>
+</head>
+<body>
+  <h2>사내 검진 예약</h2>
+  <p class="muted">날짜 선택 → 가능한 시간 선택 → 예약</p>
+
+  <div class="card">
+    <div class="row">
+      <div>
+        <label>사번(employeeNo)</label><br/>
+        <input id="employeeNo" placeholder="예: 20260001" />
+      </div>
+      <div>
+        <label>검진 날짜</label><br/>
+        <input id="date" type="date" />
+      </div>
+      <div style="margin-top: 22px;">
+        <button class="primary" id="loadBtn">가능 시간 조회</button>
+      </div>
+    </div>
+
+    <div id="status" class="muted" style="margin-top: 10px;"></div>
+    <div id="slots" class="slots"></div>
+  </div>
+
+  <div class="card">
+    <div class="row">
+      <button id="myBtn">내 예약 조회</button>
+      <span id="myStatus" class="muted"></span>
+    </div>
+    <div id="myList" style= "margin-top: 10px;"></div>
+  </div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+
+  // 기본 날짜: 오늘
+  const today = new Date();
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth()+1).padStart(2,'0');
+  const dd = String(today.getDate()).padStart(2,'0');
+  $('date').value = `${yyyy}-${mm}-${dd}`;
+
+  function setStatus(text, type="muted") {
+    const el = $('status');
+    el.className = type;
+    el.textContent = text;
+  }
+
+  async function loadSlots() {
+    const date = $('date').value;
+    if (!date) return setStatus("날짜를 선택하세요.", "err");
+
+    setStatus("가능 시간대를 불러오는 중...", "muted");
+    $('slots').innerHTML = "";
+
+    try {
+      const res = await fetch(`/api/reservations/available-slots?date=${encodeURIComponent(date)}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const slots = await res.json();
+
+      if (!slots.length) {
+        setStatus("가능한 시간대가 없습니다(전부 마감).", "err");
+        return;
+      }
+
+      setStatus(`가능한 시간대 ${slots.length}개`, "ok");
+
+      slots.forEach(slot => {
+        const btn = document.createElement('button');
+        btn.className = 'slot';
+        btn.textContent = slot;
+        btn.onclick = () => reserve(date, slot);
+        $('slots').appendChild(btn);
+      });
+
+    } catch (e) {
+      setStatus("가능 시간 조회 실패: " + e.message, "err");
+    }
+  }
+
+  async function reserve(date, timeSlot) {
+    const employeeNo = $('employeeNo').value.trim();
+    if (!employeeNo) return setStatus("사번(employeeNo)을 입력하세요.", "err");
+
+    setStatus(`예약 시도: ${date} ${timeSlot}`, "muted");
+
+    try {
+      const res = await fetch('/api/reservations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ employeeNo, checkupDate: date, timeSlot })
+      });
+
+      if (!res.ok) {
+        // 서버가 에러 메시지(JSON 또는 text)를 줄 수 있어서 둘 다 시도
+        let msg = `예약 실패 (HTTP ${res.status})`;
+        try {
+          const body = await res.json();
+          msg = body.message ? body.message : JSON.stringify(body);
+        } catch (_) {
+          msg = await res.text();
+        }
+        throw new Error(msg);
+      }
+
+      const id = await res.json();
+      setStatus(`예약 완료! 예약 ID = ${id}`, "ok");
+      await loadSlots(); // 예약 후 슬롯 갱신
+
+    } catch (e) {
+      setStatus("예약 실패: " + e.message, "err");
+    }
+  }
+
+  async function myReservations() {
+    const employeeNo = $('employeeNo').value.trim();
+    if (!employeeNo) {
+      $('myStatus').className = 'err';
+      $('myStatus').textContent = '사번을 입력하세요.';
+      return;
+    }
+
+    $('myStatus').className = 'muted';
+    $('myStatus').textContent = '조회 중...';
+    $('myList').innerHTML = '';
+
+    try {
+      const res = await fetch(`/api/reservations/me?employeeNo=${encodeURIComponent(employeeNo)}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const list = await res.json();
+
+      $('myStatus').className = 'ok';
+      $('myStatus').textContent = `총 ${list.length}건`;
+
+      if (list.length === 0) {
+        $('myList').innerHTML = `<div class="muted">예약이 없습니다.</div>`;
+        return;
+      }
+
+      list.forEach(item => {
+        const status = item.status; // "RESERVED" or "CANCELED"
+        const badgeClass = status === "RESERVED" ? "badge ok" : "badge muted";
+        const canCancel = status === "RESERVED";
+
+        const div = document.createElement('div');
+        div.className = 'card-item';
+        div.innerHTML = `
+          <div style="display:flex; justify-content:space-between; gap:12px; align-items:center;">
+            <div>
+              <div style="font-weight:700;">${item.checkupDate} / ${item.timeSlot}</div>
+              <div class="${badgeClass}" style="margin-top:6px;">${status}</div>
+            </div>
+            <div style="text-align:right;">
+              <div class="muted">예약 ID: ${item.reservationId}</div>
+            </div>
+          </div>
+          <div class="actions">
+            ${canCancel ? `<button class="danger" data-id="${item.reservationId}">예약 취소</button>` : `<span class="muted">취소된 예약입니다.</span>`}
+          </div>
+        `;
+
+        // 취소 버튼 이벤트 연결
+        const btn = div.querySelector('button.danger');
+        if (btn) {
+          btn.addEventListener('click', () => cancelReservation(item.reservationId));
+        }
+
+        $('myList').appendChild(div);
+      });
+
+    } catch (e) {
+      $('myStatus').className = 'err';
+      $('myStatus').textContent = '조회 실패: ' + e.message;
+    }
+  }
+
+  $('loadBtn').addEventListener('click', loadSlots);
+  $('myBtn').addEventListener('click', myReservations);
+  
+  async function cancelReservation(reservationId) {
+    const employeeNo = $('employeeNo').value.trim();
+    if (!employeeNo) return alert("사번(employeeNo)을 입력하세요.");
+
+    if (!confirm(`예약(${reservationId})을 취소할까요?`)) return;
+
+    try {
+      const res = await fetch(`/api/reservations/${reservationId}/cancel?employeeNo=${encodeURIComponent(employeeNo)}`, {
+        method: 'POST'
+      });
+
+      if (!res.ok) {
+        let msg = `취소 실패 (HTTP ${res.status})`;
+        try {
+          const body = await res.json();
+          msg = body.message ? body.message : JSON.stringify(body);
+        } catch (_) {
+          msg = await res.text();
+        }
+        throw new Error(msg);
+      }
+
+      alert("취소 완료!");
+      await myReservations(); // 목록 갱신
+      await loadSlots();      // 슬롯도 갱신
+    } catch (e) {
+      alert("취소 실패: " + e.message);
+    }
+  }
+
+</script>
+</body>
+</html>

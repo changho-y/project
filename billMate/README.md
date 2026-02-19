@@ -13,7 +13,7 @@
 
 https://youtu.be/YTrNN-ehsJc
 
-## Tech Stack
+## 기술 스택
 | 구분 | 기술 스택 |
 | :--- | :--- |
 | **Frontend** | React Native (Expo) |
@@ -44,6 +44,7 @@ https://youtu.be/YTrNN-ehsJc
 
 ### 5. 분쟁 증거 보관함
 * **증거 보관함**: 거주 중 불미스러운 일 발생시 법적 효력을 위해 사진과 영상을 모을 수 있는 분쟁 증거 보관함을 제공합니다.
+
 
 
 
